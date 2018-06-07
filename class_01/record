@@ -1,0 +1,10 @@
+当前任务：
+1.建一个工程，上传到Git上；
+2.熟悉Python语法；
+3.使用python2.7 Git pycharm
+问题记录：
+1.在文件设置处选择python2.7的编译器；新建项目时选择下面那个，而不是那个virtual
+    参考：https://jingyan.baidu.com/article/fd8044fa2157fe5031137add.html
+2.缺少某个库则在setting中进行添加；
+3.Git直接上次即可；
+    参考：https://www.cnblogs.com/xiaozhiqi/p/5955769.html
