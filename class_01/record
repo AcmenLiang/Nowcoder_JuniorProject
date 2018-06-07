@@ -8,3 +8,8 @@
 2.缺少某个库则在setting中进行添加；
 3.Git直接上次即可；
     参考：https://www.cnblogs.com/xiaozhiqi/p/5955769.html
+          https://blog.csdn.net/pipisorry/article/details/39897949
+    a.建好一个工程后，通过pycharm提交给Git；
+    b.在新建一个新的文件夹，新建一个工程，把刚才的工程clone下来；
+    c.之后就可以在这个新的工程中add commit push 的操作了，按这3个步骤来；
+    d.每个操作的选项都在pycharm软件标着，很好找；
