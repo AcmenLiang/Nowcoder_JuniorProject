@@ -1,5 +1,5 @@
 # coding=utf-8
-
+# 异常处理
 def demo_exception():
     try:
         print 2 / 1
