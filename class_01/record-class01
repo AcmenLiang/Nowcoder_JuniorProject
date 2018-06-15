@@ -2,6 +2,8 @@
 1.建一个工程，上传到Git上；
 2.熟悉Python语法；
 3.使用python2.7 Git pycharm
+
+
 问题记录：
 1.在文件设置处选择python2.7的编译器；新建项目时选择下面那个，而不是那个virtual
     参考：https://jingyan.baidu.com/article/fd8044fa2157fe5031137add.html
@@ -15,3 +17,8 @@
     d.每个操作的选项都在pycharm软件标着，很好找；
     e.注意每个文件的颜色，修改过的，未add的，未push的，都不同；有时候删除了文件，不想要的时候push这种情况
 我还没测试过，以后再说；
+
+
+本节获得的收获和技能：
+1.熟悉了python的基本语法(整个项目都是围绕python，所以熟悉python语法很正常)，python的随机数与正则表达式的使用
+2.熟悉pycharm的操作以及通过pycharm进行Git提交的操作

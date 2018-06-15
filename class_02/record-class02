@@ -1,0 +1,139 @@
+本节获得的收获和技能：
+1.python的装饰器，学会了python的装饰器的用法，用处，用途等等；基础知识在decorator.py文件中，实践用法在flask框架中，
+自己看里面的笔记。
+
+
+
+2.python做web开发基础知识之----HTTP协议简介：
+a.了解Chrome浏览器的开发者工具，可见廖雪峰网站HTTP协议简介 https://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001386832653051fd44e44e4f9e4ed08f3e5a5ab550358d000
+b.Response Headers响应头:服务器能接受浏览器发送过来的各种允许的请求方法，状态等等；点击view source 显示服务器返回的原始响应数据
+  Requests Headers响应头：浏览器能接受服务端发送过来的各种允许的请求方法，状态等等；点击view source 显示浏览器发给新浪服务器的请求
+c.HTTP响应分为Header和Body两部分  :Content-Type指示响应的内容，这里是text/html表示HTML网页
+HTTP响应的Body就是HTML源码
+d.当浏览器读取到新浪首页的HTML源码后，它会解析HTML，显示页面，然后，根据HTML里面的各种链接，再发送HTTP请求给新浪服务器，
+拿到相应的图片、视频、Flash、JavaScript脚本、CSS等各种资源，最终显示出一个完整的页面。所以我们在Network下面能看到很多
+额外的HTTP请求。
+    补充HTTP请求：
+跟踪了新浪的首页，我们来总结一下HTTP请求的流程：
+步骤1：浏览器首先向服务器发送HTTP请求，请求包括：
+方法：GET还是POST，GET仅请求资源，POST会附带用户数据；路径：/full/url/path；域名：由Host头指定：Host: www.sina.com.cn
+以及其他相关的Header；如果是POST，那么请求还包括一个Body，包含用户数据。
+
+步骤2：服务器向浏览器返回HTTP响应，响应包括：
+响应代码：200表示成功，3xx表示重定向，4xx表示客户端发送的请求有错误，5xx表示服务器端处理时发生了错误；
+响应类型：由Content-Type指定；
+以及其他相关的Header；
+通常服务器的HTTP响应会携带内容，也就是有一个Body，包含响应的内容，网页的HTML源码就在Body中。
+
+步骤3：如果浏览器还需要继续向服务器请求其他资源，比如图片，就再次发出HTTP请求，重复步骤1、2。
+Web采用的HTTP协议采用了非常简单的请求-响应模式，从而大大简化了开发。当我们编写一个页面时，我们只需要在HTTP请求中把HTML
+发送出去，不需要考虑如何附带图片、视频等，浏览器如果需要请求图片和视频，它会发送另一个HTTP请求，因此，一个HTTP请求只处
+理一个资源。
+
+e. HTTP是一种文本协议。
+HTTP get请求的格式：
+GET /path HTTP /1.1
+Header1: value1
+Header2: value2
+
+HTTP POST请求的格式：
+POST /path HTTP/1.1
+Header1: Value1
+Header2: Value2
+
+HTTP响应的格式：
+200 OK
+Header1: Value1
+Header2: Value2
+
+
+
+3.python做web开发基础知识之----HTML简介
+    HTML定义了一套语法规则，来告诉浏览器如何把一个丰富多彩的页面显示出来。HTML文档就是一系列的Tag组成，最外层的Tag是<html>。
+    CSS简介，CSS用来控制HTML里的所有元素如何展现，比如，给标题元素<h1>加一个样式，变成48号字体，灰色等等。
+    JavaScript简介，JavaScript是为了让HTML具有交互性而作为脚本语言添加的，JavaScript既可以内嵌到HTML中，也可以从外部
+链接到HTML中。如果我们希望当用户点击标题是把标题变成红色，就必须通过JavaScript实现。
+    HTML定义了页面的内容，CSS来控制页面元素的样式，而JavaScript负责页面的交互逻辑。
+    当我们用Python或者其他语言开发Web应用时，我们就是要在服务器端动态创建出HTML，这样，浏览器就会向不同的用户显示出不同
+的Web页面。
+
+
+
+4.python做web开发基础知识之----WSGI接口
+    web应用的本质就是：
+    a.浏览器发送一个HTTP请求；
+    b.服务器收到请求，生成一个HTML文档；
+    c.服务器把HTML文档作为HTTP响应的body发送给浏览器；
+    d.浏览器收到HTTP响应，从HTTP body取出HTML文档并显示；
+    底层代码由专门的服务器软件实现，我们用Python专注于生成HTML文档。因为我们不希望接触到TCP连接、HTTP原始请求和
+响应格式，所以，需要一个统一的接口，让我们专心用Python编写Web业务。
+    这个接口就是WSGI：Web Server Gateway Interface。
+def application(environ, start_response):
+    start_response('200 OK', [('Content-Type', 'text/html')])
+    return '<h1>hello,web!</h1>'
+    该函数就是符合WSGI标准的一个HTTP处理函数，它接收两个参数：
+environ：一个包含所有HTTP请求信息的dict对象；  start_response：一个发送HTTP响应的函数。
+    整个application()函数本身没有涉及到任何解析HTTP的部分，也就是说，底层代码不需要我们自己编写，我们只负责在更高层次上
+考虑如何响应请求就可以了。
+    总：无论多么复杂的Web应用程序，入口都是一个WSGI处理函数。HTTP请求的所有输入信息都可以通过environ获得，HTTP响应的输出
+都可以通过start_response()加上函数返回值作为Body。
+    复杂的Web应用程序，光靠一个WSGI函数来处理还是太底层了，我们需要在WSGI之上再抽象出Web框架，进一步简化Web开发。
+https://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001386832689740b04430a98f614b6da89da2157ea3efe2000
+
+
+
+5.python做web开发基础知识之----使用web框架————Flask  以及 叶神课堂笔记----flask的URL访问代码的相关操作知识
+代码在test01.py  app.py 两个文件中。
+    其实一个Web App，就是写一个WSGI的处理函数，针对每个HTTP请求进行响应。但是如何处理HTTP请求不是问题，问题是如何处理100
+个不同的URL。
+    WSGI提供的接口虽然比HTTP接口高级了不少，但和Web App的处理逻辑比，还是比较低级，我们需要在WSGI接口之上能进一步抽象，让
+我们专注于用一个函数处理一个URL，至于URL到函数的映射，就交给Web框架来做。
+    写一个app.py，处理3个URL，见app.py文件。
+    有了Web框架，我们在编写Web应用时，注意力就从WSGI处理函数转移到URL+对应的处理函数，这样，编写Web App就更加简单了。
+https://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001386832704232d6fb5df42dd34a7890fa6254351faac7000
+
+
+
+6.叶神课堂笔记----HTTP Method，代码见test02.py
+
+
+
+
+
+开发过程中碰到的问题：
+1.在用flask的app.run()时，会默认调用port5000，如果test1.py用了port5000，没有杀死port5000的话，又写了test2.py继续使用
+port5000，运行之后还是test1.py的程序样子。如何解决呢？
+    a.不同程序用不同port或host,随便改一个就可以，等下次重启之后就会全部清0的；用这种即可，host和port那么多，不怕用，能看
+到web效果就行；
+    b.一个一个端口关闭，不推荐，太麻烦了，方法如下：https://blog.csdn.net/violet_echo_0908/article/details/50129679
+打开cmd，进行如下操作：
+step1：netstat -ano | findstr 5000 //列出进程及其占用的端口，且包含 5000 //打印出后，会发现进程号在最后面显示
+step2：taskkill -PID 9248 -F //强制关闭某个进程,9248是进程号，想杀死哪个进程就输入step1中查到的进程号即可
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

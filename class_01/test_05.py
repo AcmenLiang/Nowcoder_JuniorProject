@@ -35,6 +35,14 @@ def demo_random():
 # (e):\\ 转义字符
 # 正则表达式用在提取邮箱，网页的时间等等，删选某种格式的字符串，比如时间2016-09-11 就可以设定某种正则表达式
 # 来选取特定的该时间，用于爬虫等等。
+# Python 正则表达式 http://www.runoob.com/python/python-reg-expressions.html
+#### re.match 尝试从字符串的起始位置匹配一个模式，如果不是起始位置匹配成功的话，match()就返回none；
+#### re.search 扫描整个字符串并返回第一个成功的匹配
+#### re.sub用于替换字符串中的匹配项
+#### re.compile 函数用于编译正则表达式，生成一个正则表达式（ Pattern ）对象，供 match() 和 search() 这两个函数使用
+#### re.findall 在字符串中找到正则表达式所匹配的所有子串，并返回一个列表，如果没有找到匹配的，则返回空列表
+#### re.finditer 在字符串中找到正则表达式所匹配的所有子串，并把它们作为一个迭代器返回
+#### re.spilt 按照能够匹配的子串将字符串分割后返回列表
 def demo_re():
     # 匹配出str中数字
     str1 = 'abc123def12gh16'
