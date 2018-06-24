@@ -1,4 +1,5 @@
-本节获得的收获和技能：
+    本节只是为后面开发做的基础知识准备，不了解的内容没事，开发起来的时候节课实践就明白了。
+一：本节获得的收获和技能：
 1.python的装饰器，学会了python的装饰器的用法，用处，用途等等；基础知识在decorator.py文件中，实践用法在flask框架中，
 自己看里面的笔记。
 
@@ -212,18 +213,51 @@ http://docs.jinkan.org/docs/jinja2/
 
 
 
-11.Flash Message
+11.Flash Message    使用flask中flash 以及 get_flashed_messages
+    见test_06.py文件。
+<1>
+    当登陆成功后，会有登录成功的消息提示，两个页面之间会有一个session，就是这个消息闪现。
+    flash 提示信息一般显示一段很简单的信息告知登录之类的信息。
+    “Flask Message”是一个很有意思的功能，一般一个操作完成后，我们都希望在页面上闪出一个消息，告诉用户操作的结果。用户
+看完后，这个消息就不复存在了。Flask提供的”flash”功能就是为了这个。
+<2>
+补充：
+    发送：获取接口信息，flash(msg)；即发消息的时候，通过flash发出去；
+    获取：想得到消息的时候，通过get_flashed_messages获取过来；通过一个for loop来循环提取出来；
+    属性：通过session来唯一标示传递信息；
+    注：别忘了一开始加上app.secret_key = 'nowcoder'，保证这个session的UUID能够产生出来。服务器就可以认出来是不是同一个人。
+
+
+
+12.打Log代码演示     使用logging以及logging中的RotatingFileHandler
+    见test_07.py文件。
+<1>
+    打log好处：可以看出每天的访问了，点赞等等；可以帮助调试bug；在开发中是十分重要的。
+    log分三种，INFO > WARN > ERROR：
+    一般函数的执行位置，时间等这种信息就用INFO标识，一般上线后就关闭了；WARN，ERROR这种的比较重要，单独放在某个文件中，
+出问题会报警。
+<2>
+    打上log时，如果是给error打log，则3个文件都会显示，如果是给info打log，则只会在info.txt文件处显示log内容。
+
+
+
+13.Flask-Script 代码演示    使用flask_script中的Manager
+    见test_08_manager.py文件演示。
+    Flask Script扩展提供向Flask插入外部脚本的功能，包括运行一个开发用的服务器，一个定制的Python shell，设置数据库的脚本，
+cronjobs，及其他运行在web应用之外的命令行任务；使得脚本和系统分开。
+    Flask Script和Flask本身的工作方式类似，只需定义和添加从命令行中被Manager实例调用的命令。
+     运行后，在命令行中指向test_08_manager.py -?可以看到允许执行的命令；比如本例子可以执行test_08_manager.py hello
+函数，以及initialize_database函数；把这些函数用flask-script做成脚本即可。
+    等网站做大了，后面会有数据库的初始化，初始导入等等，那些东西写在哪里呢？一把就会采用脚本，将这些工作写在脚本中。
+下节课就会把所有工作，初始化的工作啊，数据导入啊，清理啊，所有脚本要用到的东西，都会写在这个文件中，慢慢填充。
+    具体应用在后几节开发中用到。
 
 
 
 
 
 
-
-
-
-
-开发过程中碰到的问题：
+二：开发过程中碰到的问题：
 1.在用flask的app.run()时，会默认调用port5000，如果test1.py用了port5000，没有杀死port5000的话，又写了test2.py继续使用
 port5000，运行之后还是test1.py的程序样子。如何解决呢？
     a.不同程序用不同port或host,随便改一个就可以，等下次重启之后就会全部清0的；用这种即可，host和port那么多，不怕用，能看
@@ -232,6 +266,9 @@ port5000，运行之后还是test1.py的程序样子。如何解决呢？
 打开cmd，进行如下操作：
 step1：netstat -ano | findstr 5000 //列出进程及其占用的端口，且包含 5000 //打印出后，会发现进程号在最后面显示
 step2：taskkill -PID 9248 -F //强制关闭某个进程,9248是进程号，想杀死哪个进程就输入step1中查到的进程号即可
+
+2.曾经出现过的一个bug，跟编码有关，安装包的时候出现的，具体解决看如下链接：
+    https://blog.csdn.net/u014235934/article/details/52209905
 
 
 
