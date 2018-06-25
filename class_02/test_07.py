@@ -1,3 +1,4 @@
+'''
 # -*- encoding=UTF-8 -*-
 # log 测试
 
@@ -48,3 +49,4 @@ if __name__ == '__main__':
     set_logger()
     # 运行，开启debug模式
     app.run(host='127.0.0.2', port=5007, debug=True)
+'''

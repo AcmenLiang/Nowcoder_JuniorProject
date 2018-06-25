@@ -1,3 +1,4 @@
+'''
 # -*- encoding=UTF-8 -*-
 # HTTP-Methods 测试，添加get post方法在profile函数中
 
@@ -22,3 +23,4 @@ def profile(uid):
 if __name__ == '__main__':
     # 运行，开启debug模式
     app.run(host='127.0.0.2', port=5002, debug=True)
+'''

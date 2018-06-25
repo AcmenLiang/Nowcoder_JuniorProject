@@ -1,3 +1,4 @@
+'''
 # -*- encoding=UTF-8 -*-
 # request and response 测试
 
@@ -32,3 +33,5 @@ def request_demo():
 if __name__ == '__main__':
     # 运行，开启debug模式
     app.run(host='127.0.0.2', port=5004, debug=True)
+
+    '''

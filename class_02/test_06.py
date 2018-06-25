@@ -1,3 +1,4 @@
+'''
 # -*- encoding=UTF-8 -*-
 # flash message 测试
 
@@ -31,3 +32,4 @@ def login():
 if __name__ == '__main__':
     # 运行，开启debug模式
     app.run(host='127.0.0.2', port=5006, debug=True)
+'''

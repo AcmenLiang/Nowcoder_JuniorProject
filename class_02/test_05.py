@@ -1,3 +1,4 @@
+'''
 # -*- encoding=UTF-8 -*-
 # 重定向 和 error 测试
 
@@ -37,3 +38,5 @@ def page_not_found(error):  # 这里要传入error参数
 if __name__ == '__main__':
     # 运行，开启debug模式
     app.run(host='127.0.0.2', port=5005, debug=True)
+
+'''

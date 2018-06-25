@@ -1,3 +1,4 @@
+'''
 # -*- encoding=UTF-8 -*-
 # 静态和模板文件测试
 
@@ -30,3 +31,5 @@ def profile(uid):
 if __name__ == '__main__':
     # 运行，开启debug模式
     app.run(host='127.0.0.2', port=5003, debug=True)
+
+'''
