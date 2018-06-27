@@ -1,4 +1,4 @@
-'''
+
 # -*- encoding=UTF-8 -*-
 # 路径映射讲解----flask的URL访问代码
 
@@ -39,4 +39,4 @@ def profile1(uid):
 if __name__ == '__main__':
     # 运行，开启debug模式
     app.run(host='127.0.0.2', port=5001, debug=True)
-'''
+
