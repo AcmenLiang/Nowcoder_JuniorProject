@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 import pymysql
 pymysql.install_as_MySQLdb()
 
+
 app = Flask(__name__)
 app.config.from_pyfile('app.conf')  # 初始化一下，初始化的信息是从这个文件中来的，就是一些配置信息等等
 db = SQLAlchemy(app)
