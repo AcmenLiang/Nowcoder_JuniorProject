@@ -84,11 +84,10 @@ flask的一个扩展，真正的sqlalchemy很复杂，我们只需要学习一�
 开发过程中遇到的问题：
 <1>安装flask-MySQLDB库，必须python    pip     mysql-connector-c-6.0.2-winx64      同时为64位。且pip要为10.0；并且
 最后要替换新版的pycharm安装文件；    最后还要安装一个VCForPython27的C++编译器供python使用。
-
 <2>关于python的import某个模块，是从目录中导入，比如from application import app，而不是从__init__文件中导入。
-
 <3>sqlite中中文的话需要加上 u'牛客' 这样子
 <4>MySQL数据库暂时连接不上，就先用sqlite
 <5>import views, models要在app db实例声明的后面
 <6>__init__.py文件的作用了解一下，不是那么简单的一个文件
-<7>
+<7>sqlite软件中每张表的DDL部分可以看具体几张表之间的关系，包括relationship，主键，外键都可以看
+<8>查询出来如果有很多数据的话，要加上all()，不然会打出一些SQL语句来；

@@ -20,8 +20,21 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True)  # unique=True指这个字段在这列里不能重复
     password = db.Column(db.String(32))  # Column代表数据库中的一列，即关键字
     head_url = db.Column(db.String(256))
-    images=db.relationship('Image')
+    images = db.relationship('Image', backref='users', lazy='dynamic')
     # 含义解释：将两个表(User与Image)关联起来了，表示User中的image是从Image类来的；
+    '''
+    1.一对多查询，解释backref的作用：
+    user = User.query.get(10)  # 获取User类中主键id=10的用户变量
+    print 'test10', user, user.images.all()  # 查询出来如果有很多数据的话，要加上all()，不然会打出一些SQL语句来；
+    # 打印跟id=10相关联的所有image，之所有能实现，是在User类中将images与User关联起来了，用的relationship，即一对多的概念；
+    image = Image.query.get(35)  # 查询图片id为35的变量
+    print 'test11', image, image.user_id  # 这里是用的Image类中的变量，即user_id，即发图片的是哪个人
+    # 这里要在User类中将User类与Image类关联的时候(relationship语句中)，加上backref='users'，表示反关联，即双向关联，这样也就能
+    # 根据图片的id查询到人的id了；上面两个print语句就是表示了双向关联可以互相查询的意思；
+    2.解释lazy的作用：
+    lazy='dynamic' lazy 决定了 SQLAlchemy 什么时候从数据库中加载数据；具体参数优化可见：
+    https://blog.csdn.net/bestallen/article/details/52551579
+    '''
     # relationship中的第一个参数是要关联的类(表)的名称，这位类名Image，而不是__tablename__的images；
     # 表示一个人有很多图片，即users类中的主键id可以对应许多images，即一对多的关系，用relationgship关联；
     # ForeignKey仅仅是取其他表中键的值，而并非关联起来，是表1的id用了表2的id，则用ForeignKey拷过来；若是关联，则用relationship
