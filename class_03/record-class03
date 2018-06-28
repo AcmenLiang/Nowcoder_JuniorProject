@@ -56,6 +56,7 @@ flask的一个扩展，真正的sqlalchemy很复杂，我们只需要学习一�
 表与表之间的关系，构造函数，__repr__函数等等知识，要学会写这个类。
     关于db.model的补充：http://www.pythondoc.com/flask-sqlalchemy/models.html
     具体知识在下面的小节中还有。
+    这里面还有__tablename__等属性，还有limit,first等一系列方法，用到了可以从官网查看。
 
 
 
@@ -85,3 +86,9 @@ flask的一个扩展，真正的sqlalchemy很复杂，我们只需要学习一�
 最后要替换新版的pycharm安装文件；    最后还要安装一个VCForPython27的C++编译器供python使用。
 
 <2>关于python的import某个模块，是从目录中导入，比如from application import app，而不是从__init__文件中导入。
+
+<3>sqlite中中文的话需要加上 u'牛客' 这样子
+<4>MySQL数据库暂时连接不上，就先用sqlite
+<5>import views, models要在app db实例声明的后面
+<6>__init__.py文件的作用了解一下，不是那么简单的一个文件
+<7>
