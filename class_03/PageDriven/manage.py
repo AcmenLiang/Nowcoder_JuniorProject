@@ -20,7 +20,7 @@ def init_database():
     db.create_all()
     # 100个用户，每个用户3张图片，每张图片3条评论
     for user_i_id in range(0, 100):
-        db.session.add(User(u'牛客' + str(user_i_id + 1), 'password' + str(random.randint(0, 1000))))  # id从1开始
+        db.session.add(User('牛客' + str(user_i_id + 1), 'password' + str(random.randint(0, 1000)))) # id从1开始
         for image_j_id in range(0, 3):
             # 看Image类中的构造函数__init__的参数是几个，这里就传入几个，相当于类的实例化(或者说是表中一条数据的建立)
             # 第2个参数就是用的user_id，故从上面的遍历中直接传下来
@@ -29,7 +29,6 @@ def init_database():
                 db.session.add(Comment(u'这是一条评论：' + str(comment_k_id), 1 + 3 * user_i_id + image_j_id, user_i_id + 1))
                 # 后面两个是image_id user_id，需要计算一下才是对应当前评论id的正确值；
     db.session.commit()  # 将数据插入后，需要commit一下，才能将数据真正的提交的数据库中；
-
     '''
     # 3.更新数据库中数据
     # (1)更新方式1：将id为50-100 步进为2的id的username前加上New1，通过给username赋值的方式来更新；
@@ -40,7 +39,6 @@ def init_database():
     User.query.filter_by(id = 50).update({'username':'[New2]'})
         # update存的是dict的形式，即key为表中的关键字(如id,username等)，value为重置的数据；
     db.session.commit()  # 提交给数据库；
-
     # 4.删除数据库中数据
     for comment_k_id in range(50, 100, 2):
         comment = Comment.query.get(comment_k_id+1)
@@ -49,7 +47,6 @@ def init_database():
     Comment.query.filter_by(id = 30).delete()
     # 删除方式二：用query.delete()；删除数据库中Comment类中id为30的那一行数据；
     db.session.commit()  # 但凡是更新过数据库，就要commit一下；
-
     # 5.增加数据库中数据
     # 不举例了，上面的db.session.add(User(xxx))就是增加数据的例子；用add去增加新数据；
     '''
