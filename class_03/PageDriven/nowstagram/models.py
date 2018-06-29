@@ -17,7 +17,7 @@ class User(db.Model):
     # 即id这个键的值不需要初始化了(__init__函数不需要再写id的初始化内容)，加上了autoincrement后就会从1开始自增，直至不
     # 在session.add数据为止；
 
-    username = db.Column(db.String(80))  # unique=True指这个字段在这列里不能重复
+    username = db.Column(db.String(80), unique=True)  # unique=True指这个字段在这列里不能重复
     password = db.Column(db.String(80))  # Column代表数据库中的一列，即关键字
     head_url = db.Column(db.String(256))
     images = db.relationship('Image', backref='users', lazy='dynamic')

@@ -8,6 +8,7 @@ pymysql.install_as_MySQLdb()
 
 
 app = Flask(__name__)
+app.jinja_env.add_extension('jinja2.ext.loopcontrols')  # break在jinja2模板中是没有的，要添加一个环境变量，自己百度
 app.config.from_pyfile('app.conf')  # 初始化一下，初始化的信息是从这个文件中来的，就是一些配置信息等等
 db = SQLAlchemy(app)
 from nowstagram import views, models  # 这样工程就打包完了，只要调用__init__就可以找到各个.py文件中的模块
