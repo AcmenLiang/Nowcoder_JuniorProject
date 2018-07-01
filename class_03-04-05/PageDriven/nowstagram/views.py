@@ -27,7 +27,7 @@ def image(image_id):
     return render_template('pageDetail.html', image=image, comments=comments)  # 否则就进入图片详情页；传入.html网页作为模板
 
 
-
+# 意思都和上面差不多，就不多写了
 @app.route('/profile/<int:user_id>/')
 def profile(user_id):
     user = User.query.get(user_id)

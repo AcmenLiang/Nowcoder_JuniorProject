@@ -1,0 +1,7 @@
+1.pycharm and Git
+2.flask框架
+3.flask-script中manager脚本文件；
+4.jinja2模板的使用，模板继承，如何对HTML文件进行改写开发，使用MVC模式；
+5.flask sqlalchemy与mysql建立ORM映射；
+6.登录/注册/浏览功能的业务实现；
+7.profile的AJAX实现；
