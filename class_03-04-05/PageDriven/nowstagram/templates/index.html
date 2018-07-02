@@ -1,7 +1,7 @@
 <!--模板继承的初始部分，表面继承的哪个模板-->
 {% extends "base.html" %}
 <!--下面3个block即模板继承的改变部分，在模板base中3处被替换了，每一处即一个block，在当前的index页中进行block块的书写-->
-{% block title %}首页{% endblock%}
+{% block title %}首页-{{current_user.username}}{% endblock%}
 {% block css %}/static/styles/pages/index.css{% endblock%}
 {% block content %}
 <div class="page-main clearfix">

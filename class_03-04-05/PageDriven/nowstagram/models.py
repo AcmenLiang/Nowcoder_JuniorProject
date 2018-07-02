@@ -4,7 +4,7 @@
 它存储在您必须创建的 SQLAlchemy 实例上。
 '''
 
-from nowstagram import db
+from nowstagram import db, login_manager
 from datetime import datetime
 import random
 
@@ -19,6 +19,7 @@ class User(db.Model):
 
     username = db.Column(db.String(80), unique=True)  # unique=True指这个字段在这列里不能重复
     password = db.Column(db.String(80))  # Column代表数据库中的一列，即关键字
+    salt = db.Column(db.String(32))  # 注册用的，加强密码的安全性，即防止破解密码的一个外键
     head_url = db.Column(db.String(256))
     images = db.relationship('Image', backref='users', lazy='dynamic')
     # 含义解释：将两个表(User与Image)关联起来了，表示User中的image是从Image类来的；
@@ -40,15 +41,34 @@ class User(db.Model):
     # ForeignKey仅仅是取其他表中键的值，而并非关联起来，是表1的id用了表2的id，则用ForeignKey拷过来；若是关联，则用relationship
 
     # __init__相当于构造函数，声明一个实例的时候会通过这里进行属性的初始化；self即相当于this指针
-    def __init__(self, username, password):
+    def __init__(self, username, password, salt=''):
         self.username = username
         self.password = password
+        self.salt = salt  # 默认此处为空，主要进行密码的加密，用到了再进行赋值；
         self.head_url = 'http://images.nowcoder.com/head/' + str(random.randint(0, 1000)) + 'm.png'  # 随机生成头像的一种方式
 
     # 这里打印出来的格式就是User类中__repr__函数的格式，比如User类中是return '[User %d %s]' % (self.id, self.username)
     # 则就是打印出的[User 3 牛客3]， __repr__就是用于查询User.query()函数要查询的东西的内容及格式。
     def __repr__(self):
         return '[User %d %s]' % (self.id, self.username)
+
+    # User类需要实现这些特性和方法：在current_user字段中就会用到下面的几个方法，在base,html中有应用；
+    # 这个特性应该返回True，如果用户已经被认证，也就是说他们已经提供有效的证明。（只有认证的用户将完成login_required标准）
+    def is_authenticated(self):
+        print 'is_authenticated'
+        return True
+    # 这个特性应该返回True，如果这是一个除了作为身份认证的活动的用户，他们也激活了他们的账号，没有被废除，或者在任何情况你的应用程序拒绝了一个账号。不活跃的用户或许不能登录进去（除了被强制的过程）。
+    def is_active(self):
+        print 'is_active'
+        return True
+    # 这个特性应该返回True，如果这是一个匿名用户。（实际用户应该返回False来代替）。
+    def is_anonymous(self):
+        print 'is_anonymous'
+        return False
+    # 个方法必须返回一个唯一标识该用户的unicode，以及可能被用来从user_loader回调来加载用户。注意这个必须是unicode字符，如果ID是原始的int类型或者一些其他类型，你将需要转换它变成unicode字符。
+    def get_id(self):
+        print 'get_id'
+        return self.id
 
 
 # 每个人都可能发表若干张图片，此类对应数据库中的images表
@@ -110,3 +130,11 @@ class Comment(db.Model):
     # 查询函数(Comment.query())数据查询后的内容和格式就是__repr__函数定义的，比如这里查询出来的只有评论id 和 评论内容；
     def __repr__(self):
         return '[Comment %d %s]' % (self.id, self.content)
+
+
+# 如何登录？
+# 你将需要提供一个user_loader回调。这个回调被用来从对话里存储的用户ID中重新加载用户对象。它应该获取用户的unicode ID，以
+# 及返回对应的用户对象。例如：
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)  # 根据传入的unicode类型的user_id进行查询用户的记录

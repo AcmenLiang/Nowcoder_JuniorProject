@@ -14,13 +14,16 @@
             <header class="header">
                 <div class="header-cont">
                     <a class="logo" href="/">logo</a>
-                    <div class="web-menu">
-                        <a class="profile-ico">个人主页</a>
+                    <div class="web-menu">      <!--这一段是右上角那个个人按钮图标-->
+                    {% if current_user.is_authenticated %}      <!--通过current_user判断用户是否已认证，User类中的3个is_xxx就是在这用的-->
+                        <a class="profile-ico" href="/profile/{{current_user.id}}" title="{{current_user.username}}">{{current_user.username}}</a>
+                    {% else %}              <!--未认证，则返回登录页-->
+                        <a class="profile-ico" href="/regloginpage">注册/登录</a>
+                    {% endif %}
                     </div>
                 </div>
             </header>
 
-            {!-- --}
             {% block content %}{% endblock %}
 
             <footer class="footer">
