@@ -4,13 +4,11 @@
 from nowstagram import app, db  # 从application中导入app，不然找不到该模块；从__init__中导入是不行的！！！必须从子目录中导入！！！
 from models import User, Image, Comment  # 由于view与model文件在泳衣目录，故直接这么导入即可，将这3个类导入；
 from flask import render_template, redirect, request, flash, get_flashed_messages
+# render_templatejinja2中的模板；redirect重定向；request用于get post中的请求；get_flashed_messages用于消息闪现
 from flask_login import login_user, logout_user, login_required, current_user  # 这4部分即登陆登出所需的函数
 import hashlib  # md5加密用
 import random  # 产生随机数
 import json
-
-
-# render_templatejinja2中的模板；redirect重定向；request用于get post中的请求；get_flashed_messages用于消息闪现
 
 
 # python的装饰器，传入一个/就可以直接下面的函数，注意URL不是localhost/index，index只是个函数；这里就是127.0.0.1:5001/
@@ -42,7 +40,34 @@ def profile(user_id):
     user = User.query.get(user_id)
     if user == None:
         return redirect('/')
-    return render_template('profile.html', user=user)
+    # 现在就不是全部读取了，只读取了第一页，且第一页有3张图；即现在初始化的时候只显示3张图，原先是一下10张全读进去。
+    # 所以为了显示全部的图，要点击更多按钮，进行刷新，刷新我们就要用AJAX异步刷新的方法。所以请看下面的def user_images方法。
+    paginate = Image.query.filter_by(user_id=user_id).paginate(page=1, per_page=3,
+                                                               error_out=False)  # 注：paginate是分页查询的一个关键字，原先讲过。
+    return render_template('profile.html', user=user, images=paginate.items, has_next=paginate.has_next)  # 第一次显示也要判断下是否还有下一页，不然没有的话就不显示更多按钮了
+
+
+#   实现AJAX的关键函数，个人详情页实现AJAX需要这个图片查询函数做辅助。
+# 新加一个请求，这个请求可以把页面分页的显示用户的图片
+# 每次点击更多之后，都会查询到新的一页图片，将该页图片的数据存入一个map中，返回给前端，让他们显示
+#   效果演示：本地调试时比如输入 http://127.0.0.1:5001/profile/images/50/2/3/
+# 则返回如下样式字符串：{"has_next": true, "images": [{"url": "http://images.nowcoder.com/head/99m.png", "comment_count": 3, "id": 494}, {"url": "http://images.nowcoder.com/head/840m.png", "comment_count": 3, "id": 495}, {"url": "http://images.nowcoder.com/head/61m.png", "comment_count": 3, "id": 496}]}
+# 剩下的就将该接口返回给前端显示即可。
+@app.route('/profile/images/<int:user_id>/<int:page>/<int:per_page>/')
+def user_images(user_id, page, per_page):
+    # 1.查询用户的数据
+    paginate = Image.query.filter_by(user_id=user_id).paginate(page=page, per_page=per_page, error_out=False)
+    # 2.将查询到的数据进行返回，不断获取新的翻页数据后，总有读完的时候，即没法点击更多了，前端是需要后端通知的。
+    # 选择用一个map返回数据。
+    # 3.设立是否还有下一页的标志
+    map = {'has_next': paginate.has_next}  # has_next是paginate中的一个属性，直接调用即可
+    images = []
+    # 4.每页的图片信息存入map中，最终返回json格式
+    for image in paginate.items:
+        imgvo = {'id': image.id, 'url': image.url, 'comment_count': len(image.comments)}
+        images.append(imgvo)
+    map['images'] = images
+    return json.dumps(map)
 
 
 # flash message用的比较多，独立成一个函数；category为分类闪现的应用，具体可看下面资料：
@@ -60,7 +85,8 @@ def regloginpage():
     # 对每次返回到注册登录页的flash message进行一个提取，然后传入前端令其显示出来；这里用到了过滤闪现和分类闪现；
     for m in get_flashed_messages(with_categories=False, category_filter=['reglogin']):
         msg = msg + m
-    return render_template('login.html', msg=msg, next=request.values.get('next'))  # 传入next为了用户体验优化，可以跳回注册前点击的页面，而不是直接返回首页
+    return render_template('login.html', msg=msg,
+                           next=request.values.get('next'))  # 传入next为了用户体验优化，可以跳回注册前点击的页面，而不是直接返回首页
 
 
 # 注册函数的开发；即点击注册按钮后后台处理的过程；
@@ -108,7 +134,7 @@ def reg():
 
 # 登录函数的开发;即点击登录按钮后后台处理的过程；
 # 1.获取用户名/密码；2.业务逻辑判断用户名/密码；3.最终则登录用户并回首页；
-@app.route('/login/', methods= {'get', 'post'})
+@app.route('/login/', methods={'get', 'post'})
 def login():
     # 1.获取用户名/密码
     username = request.values.get('username').strip()  # 获取登录时提交的用户名/密码
