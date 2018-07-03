@@ -1,3 +1,6 @@
+    该项目整个思路或碰到的问题以及用到的知识可以参考如下文章，可以将他的功能简述，技术路线，问题集锦摘录下来：
+https://blog.csdn.net/zhyh1435589631/article/details/51787577
+
 1.pycharm and Git
 
 2.flask框架
@@ -38,7 +41,16 @@
         5.其他的就是登录，注册，访问的基本要求就不写了，都在代码中，看record_class04中笔记。
 
 7.profile的AJAX实现；
-    AJAX就是一个业务上的需求，了解即可；
-    AJAX的开发流程：
+    AJAX就是一个业务上的需求，了解即可；见views.py中的user_images函数以及profile.html中的部分代码。
+    AJAX的开发流程：前端设定一个更多按钮，等待后端发送过接口；后端发送一个map，里面存储hax_next，image等变量，每次都是
+利用分页提取的方式存入map中，然后将map传给前端，前端拿来显示即可。
 
-8.注册时需要加上邮件激活
+
+
+待增加功能：
+1.首页AJAX分页浏览实现；跟前端关系太大，以后有时间在弄。
+2.注册时需要加上邮件激活；跟前端关系太大，以后有时间在弄。
+    https://blog.csdn.net/liuredflash/article/details/79632489
+    https://blog.csdn.net/zhyh1435589631/article/details/51585231
+3.爬虫获取图片信息；
+    可参考如下：https://blog.csdn.net/zhyh1435589631/article/details/51889510
