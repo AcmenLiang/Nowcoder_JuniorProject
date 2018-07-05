@@ -80,7 +80,7 @@ def user_images(user_id, page, per_page):
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 # flash message用的比较多，独立成一个函数；category为分类闪现的应用，具体可看下面资料：
 # http://docs.jinkan.org/docs/flask/patterns/flashing.html
-def redirect_with_msg(target, msg, category):
+def redirect_with_msg(target, msg, category=''):
     if msg != None:
         flash(msg, category=category)  # 将flash消息存入session中，待后面用的时候提取出来
     return redirect(target)  # 重定向回目标页
@@ -239,11 +239,11 @@ def upload():
             db.session.add(Image(url, current_user.id))
             db.session.commit()
     # 5.如果上面某几步失败或者全部执行完后，将跳转回当前上传图片的用户的个人详情页去
-    return redirect('/profile/%d/' % current_user.id)
-
+    # return redirect('/profile/%d/' % current_user.id)
+    return redirect_with_msg('/profile/%d/' % current_user.id, '图片上传成功')  # 打一个flash消息
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-                图片详情页增加评论
+                图片详情页/首页增加评论
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 # 增加评论的URL，为何用post请求？
 # Post，它是可以向服务器发送修改请求，从而修改服务器的，比方说，我们要在论坛上回贴、在博客上评论，这就要用到Post了，当然

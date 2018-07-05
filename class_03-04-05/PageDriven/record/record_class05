@@ -64,17 +64,16 @@ https://developer.qiniu.com/kodo/sdk/1242/python#upload
     阿里云/七牛云都支持CDN这些，但是需要花钱去买。
 
 
-<3>图片详情页增加评论
+<3>图片详情页/首页增加评论
     1.仅仅对图片增加评论，所以其他地方不必刷新，即异步刷新，AJAX请求。
     2.为何用post请求？它是可以向服务器发送修改请求，从而修改服务器的，比方说，我们要在论坛上回贴、在博客上评论，这就要用到
  Post了，当然它也是可以仅仅获取数据的。https://zhidao.baidu.com/question/1759920971069677948.html
     3.postman调试，通过network/XHR按钮查看点击增加评论后来自image_id,content的内容，则我们就通过request.values请求获取这2
 部分。因为model.py中的Comment类的构造函数需要content,image_id,user_id。构造一条comment实例才可以add到数据库中，然后前端
-读取数据库中的评论显示。所以这就是思路：request到所需的几部分，构造实例，增加到数据库，前端显示。
-    代码很少，看views.py中的add_comment_to_pageDetail()即可。
+读取数据库中的评论显示。所以这就是思路：request到所需的几部分，构造实例，增加到数据库，最终返回json格式用于前端显示。
+    代码很少，看views.py中的add_comment_to_pageDetail()即可。前端代码是加了detail.js才完成的，看看即可，不必深究。
+首页的增加评论就是前端代码改了下，不深究。
 
-
-<4>首页图片增加评论
 
 
 

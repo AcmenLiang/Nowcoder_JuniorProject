@@ -4,7 +4,7 @@
 {% block title %}首页-{{current_user.username}}{% endblock%}
 {% block css %}/static/styles/pages/index.css{% endblock%}
 {% block content %}
-<div class="page-main clearfix">
+<div class="page-main clearfix js-image-list">
     <!--这里就是jinja2模板语言了，对传入的10张image进行for循环，对每张图的时间，图片详情，评论等内容进行添加-->
     <!--images即在views.py文件中传入的变量，下面将需要变量的地方提取他们的id,comment等等信息即可-->
     {% for image in images%}
@@ -53,11 +53,14 @@
                     </span>
                 </li>
                 -->
-                <li class="more-discuss">
+                <li class="more-discuss js-discuss-list">
                     <a>
                         <span>全部 </span><span class="">{{image.comments|length}}</span>
                         <span> 条评论</span></a>
                 </li>
+                <div class = "js-discuss-list-{{loop.index}}">
+
+                </div>
                 {% for comment in image.comments %}
                 <!--这里做一个优化，只显示2条评论，注意，break在jinja2模板中是没有的，要添加一个环境变量，自己百度-->
                 {% if loop.index > 2 %}{% break %} {% endif %}
@@ -72,16 +75,26 @@
                 </li>
                 {% endfor %}
             </ul>
-
             <section class="discuss-edit">
                 <a class="icon-heart"></a>
                 <form>
-                    <input placeholder="添加评论..." type="text">
+                    <input placeholder="添加评论..." id = "jsCmt-{{loop.index}}" type="text">
+                    <input id = "js-image-id-{{loop.index}}" type = "text" style="display: none" value="{{image.id}}">
                 </form>
-                <button class="more-info">更多选项</button>
+                <button class="more-info" id = "jsSubmit-{{loop.index}}">更多选项</button>
             </section>
         </div>
     </article>
     {% endfor %}
 </div>
+{% endblock%}
+
+{% block js %}
+<script type="text/javascript">
+    window.uid = None;
+</script>
+<script type="text/javascript" src="/static/js/jquery.js"></script>
+<script type="text/javascript" src="/static/js/detail_index.js"></script>
+<script type="text/javascript" src="/static/js/index.js"></script>
+</script>
 {% endblock%}
