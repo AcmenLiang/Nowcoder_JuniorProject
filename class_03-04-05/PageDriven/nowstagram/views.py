@@ -240,3 +240,31 @@ def upload():
             db.session.commit()
     # 5.如果上面某几步失败或者全部执行完后，将跳转回当前上传图片的用户的个人详情页去
     return redirect('/profile/%d/' % current_user.id)
+
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+                图片详情页增加评论
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# 增加评论的URL，为何用post请求？
+# Post，它是可以向服务器发送修改请求，从而修改服务器的，比方说，我们要在论坛上回贴、在博客上评论，这就要用到Post了，当然
+# 它也是可以仅仅获取数据的。详情：https://zhidao.baidu.com/question/1759920971069677948.html
+@app.route('/addcomment/', methods={'post'})
+@login_required
+def add_comment_to_pageDetail():
+    # 1.获取Comment实例所需的属性
+    image_id = int(request.values['image_id'])
+    content = request.values['content']
+    # 2.构造comment实例
+    comment = Comment(content, image_id, current_user.id)
+    # 3.将comment该条数据添加到Comment表中
+    db.session.add(comment)
+    db.session.commit()
+    # 4.每页的评论信息存入map中，最终返回json格式用于前端显示
+    return json.dumps\
+    ({
+        "code":0,
+        "id":comment.id,
+        "content":content,
+        "username":comment.users.username,  # 因为Comment表与User表是多对多，relationship关系；
+        "user_id":comment.users.id
+     })
