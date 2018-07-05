@@ -3,11 +3,13 @@
 
 from nowstagram import app, db  # 从application中导入app，不然找不到该模块；从__init__中导入是不行的！！！必须从子目录中导入！！！
 from models import User, Image, Comment  # 由于view与model文件在泳衣目录，故直接这么导入即可，将这3个类导入；
-from flask import render_template, redirect, request, flash, get_flashed_messages
+from flask import render_template, redirect, request, flash, get_flashed_messages, send_from_directory
 # render_templatejinja2中的模板；redirect重定向；request用于get post中的请求；get_flashed_messages用于消息闪现
 from flask_login import login_user, logout_user, login_required, current_user  # 这4部分即登陆登出所需的函数
 import hashlib  # md5加密用
 import random  # 产生随机数
+import uuid  # 产生唯一识别码，用于给文件名更名
+import os
 import json
 
 
@@ -70,6 +72,9 @@ def user_images(user_id, page, per_page):
     return json.dumps(map)
 
 
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+                    注册登录相关
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 # flash message用的比较多，独立成一个函数；category为分类闪现的应用，具体可看下面资料：
 # http://docs.jinkan.org/docs/flask/patterns/flashing.html
 def redirect_with_msg(target, msg, category):
@@ -166,3 +171,67 @@ def login():
 def logout():
     logout_user()  # flask-login库中的函数，删除token，session等
     return redirect('/')  # 当登出之后自动重定向到首页
+
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+                    上传图片相关
+上传步骤：
+    1.将上传的文件的信息通过request请求获取出来，保存在变量file中；
+    2.将文件后缀名取出存入file_ext变量中；
+    3.将图片提交至服务器之前，先对文件的后缀名做一个验证，看后缀名是否在配置文件允许范围之内;若符合，则将文件保存在服务
+器，并获得一个URL地址；(调用sava_to_local函数，将上传的图片在本地保存,并返回一个可以访问的URL地址)；
+    4.如果URL存在，则将该图存储到数据库当中；
+    5.调用view_image函数，其实是flask的send_from_directory，上传图片之后，web需要显示；则此处添加一个图片显示函数；
+    6.全部执行完后，将跳转回当前上传图片的用户的个人详情页去；
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# 2.将上传的图片在本地保存,并返回一个可以访问的URL地址
+def save_to_local(file, file_name):
+    save_dir = app.config['UPLOAD_DIR']  # 获取根目录
+    file.save(os.path.join(save_dir, file_name))  # 将上一步的根目录与文件名结合保存在本地的文件夹中
+    return '/image/' + file_name  # 返回一个可以访问的URL地址，比如为/image/xxxx.jpeg
+
+
+# 3.
+
+
+
+# 4.上传图片之后，web需要显示；则此处添加一个图片显示函数；
+@app.route('/image/<image_name>')
+def view_image(image_name):
+    # flask中集成了这么一个函数，send_from_directory；当用户直接访问该URL时，就直接显示该目录下的那个图；
+    return send_from_directory(app.config['UPLOAD_DIR'], image_name)
+
+
+# 1.上传图片时需要调用的函数；这就是一个API接口，后端写好后，就算没有前端，用postman调试，也可以直接进行上次，入库等操作；
+# upload上传内容必须要用post方法。为什么？
+# get方法在请求头后面是不带任何参数的，即没有数据区；而post方法在请求的尾部是带上任何形式数据的。
+@app.route('/upload/', methods=['POST'])
+def upload():
+    '''
+    print request.files
+    print type(request.files)
+    print dir(file)
+    打印看一下文件的目录信息，文件信息等，在后面提取关键字的时候使用。比如有如下信息：
+    ['__bool__', '__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattr__', '__getattribute__',
+    '__hash__', '__init__', '__iter__', '__module__', '__new__', '__nonzero__', '__reduce__', '__reduce_ex__', '__repr__',
+    '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_parse_content_type', 'close',
+    'content_length', 'content_type', 'filename', 'headers', 'mimetype', 'mimetype_params', 'name', 'save', 'stream']
+    '''
+    # 1.将上传的文件的信息通过request请求获取出来，保存在变量file中；files是请求提交过来时里面的一些文件；
+    # []内是上传的文件定义的key名字。如果上传的多变量，比如还有file1,file2等，直接在这个dict里更改即可，可以提取file1,file2.
+    file = request.files['file']
+    # 2.将文件后缀名取出存入file_ext变量中；
+    file_ext = ''
+    if file.filename.find('.') > 0:
+        file_ext = file.filename.rsplit('.', 1)[1].strip().lower()  # 比如为xxx.bmp，则file_ext内容为bmp
+    # 3.将图片提交至服务器之前，先对文件的后缀名做一个验证，看后缀名是否在配置文件允许范围之内;若符合，则将文件保存在服务器，并获得一个URL地址
+    if file_ext in app.config['ALLOWED_EXT']:
+        # 获得文件整体名字，为了防止名字中含有html等干扰信息，选择用一个uuid(通用唯一识别码，就是一个随机值)的方式代替真名字
+        file_name = str(uuid.uuid1()).replace('-', '') + '.' + file_ext
+        url = save_to_local(file, file_name)  # 调用写好的函数，将文件保存在服务器，并获得一个URL地址
+        # 4.如果URL存在，则将该图加载到数据库当中
+        if url != None:
+            db.session.add(Image(url, current_user.id))
+            db.session.commit()
+    # 5.如果上面某几步失败或者全部执行完后，将跳转回当前上传图片的用户的个人详情页去
+    return redirect('/profile/%d/' % current_user.id)

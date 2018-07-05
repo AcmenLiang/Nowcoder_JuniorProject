@@ -5,6 +5,7 @@
 '''
 
 from nowstagram import db, login_manager
+from flask_login import UserMixin
 from datetime import datetime
 import random
 
@@ -45,7 +46,7 @@ class User(db.Model):
         self.username = username
         self.password = password
         self.salt = salt  # 默认此处为空，主要进行密码的加密，用到了再进行赋值；
-        self.head_url = 'http://images.nowcoder.com/head/' + str(random.randint(0, 1000)) + 'm.png'  # 随机生成头像的一种方式
+        self.head_url = u'/static/pictures/' + unicode(random.randint(0, 100)) + u'.jpg'  # 随机生成头像的一种方式
 
     # 这里打印出来的格式就是User类中__repr__函数的格式，比如User类中是return '[User %d %s]' % (self.id, self.username)
     # 则就是打印出的[User 3 牛客3]， __repr__就是用于查询User.query()函数要查询的东西的内容及格式。
