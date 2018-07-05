@@ -50,6 +50,23 @@ https://blog.csdn.net/zhyh1435589631/article/details/51787577
 8.图片上传；
     详细内容见record_class05_<1> 里面清除写了各部分原理。
     技术流为fiddle web debugger工具的使用;HTTP post 单/多变量的上传；文件上传步骤的python代码逻辑；
+    不应该讲解几行代码，应该讲熟悉HTTP post协议，从头到尾数据是怎么打包的，数据是怎么跟参数解析出来的。
+
+9.七牛云存储----通过python上传文件到七牛云服务器
+    参考网站：
+https://developer.qiniu.com/kodo/sdk/1242/python#upload
+https://www.cnblogs.com/shijingjing07/p/5754273.html
+https://www.cnblogs.com/lzxwalex/p/6629435.html
+    收获，使用postman进行调试，没有前端的时候，模拟API接口，发送过后看HTTP头部的变化等，看web的的变化，比如是否上传成功
+等。
+    代码逻辑以及详细代码在record_class05_<2>，主要文献看上面几个即可。
+
+10.增加评论
+
+
+
+
+
 
 
 
@@ -60,3 +77,7 @@ https://blog.csdn.net/zhyh1435589631/article/details/51787577
     https://blog.csdn.net/zhyh1435589631/article/details/51585231
 3.爬虫获取图片信息；
     可参考如下：https://blog.csdn.net/zhyh1435589631/article/details/51889510
+4.注册/登录页的优化
+5.boostrap 导航条替换
+6.各种优化
+    看完视频后这些功能再一一添加，再写简历。

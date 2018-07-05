@@ -4,13 +4,16 @@
 from nowstagram import app, db  # 从application中导入app，不然找不到该模块；从__init__中导入是不行的！！！必须从子目录中导入！！！
 from models import User, Image, Comment  # 由于view与model文件在泳衣目录，故直接这么导入即可，将这3个类导入；
 from flask import render_template, redirect, request, flash, get_flashed_messages, send_from_directory
-# render_templatejinja2中的模板；redirect重定向；request用于get post中的请求；get_flashed_messages用于消息闪现
+# render_templatejinja2中的模板；redirect重定向；request用于get post中的请求；get_flashed_messages用于消息闪现;
+# send_from_directory是flask中直接显示某个本地文件中图片用的库函数；
+
 from flask_login import login_user, logout_user, login_required, current_user  # 这4部分即登陆登出所需的函数
 import hashlib  # md5加密用
 import random  # 产生随机数
 import uuid  # 产生唯一识别码，用于给文件名更名
 import os
 import json
+from qiniusdk import qiniu_upload_file  #七牛
 
 
 # python的装饰器，传入一个/就可以直接下面的函数，注意URL不是localhost/index，index只是个函数；这里就是127.0.0.1:5001/
@@ -191,8 +194,9 @@ def save_to_local(file, file_name):
     return '/image/' + file_name  # 返回一个可以访问的URL地址，比如为/image/xxxx.jpeg
 
 
-# 3.
-
+# 3.将上传的图片在七牛云存储，并返回一个可以访问的URL地址
+def save_to_qiniu(file, file_name):
+    return qiniu_upload_file(file, file_name)  # qiniusdk.py中函数，传入从post请求到的文件以及得出的文件名
 
 
 # 4.上传图片之后，web需要显示；则此处添加一个图片显示函数；
@@ -228,7 +232,8 @@ def upload():
     if file_ext in app.config['ALLOWED_EXT']:
         # 获得文件整体名字，为了防止名字中含有html等干扰信息，选择用一个uuid(通用唯一识别码，就是一个随机值)的方式代替真名字
         file_name = str(uuid.uuid1()).replace('-', '') + '.' + file_ext
-        url = save_to_local(file, file_name)  # 调用写好的函数，将文件保存在服务器，并获得一个URL地址
+        # url = save_to_local(file, file_name)  # 调用写好的函数，将文件保存在本地，并获得一个URL地址
+        url = save_to_qiniu(file, file_name)    # 调用写好的函数，将文件保存在服务器，并获得一个URL地址
         # 4.如果URL存在，则将该图加载到数据库当中
         if url != None:
             db.session.add(Image(url, current_user.id))
