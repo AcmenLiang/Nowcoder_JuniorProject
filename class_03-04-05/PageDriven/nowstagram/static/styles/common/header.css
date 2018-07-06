@@ -38,3 +38,12 @@
     text-indent: 110%;
     white-space: nowrap;
 }
+
+.logout {
+    background: url(../../images/res/nk.png);
+    /*background-position: -140px -30px;*/
+    height: 46px;
+    width: 46px;
+    text-indent: -9999em;
+    margin-top: 10px;
+}

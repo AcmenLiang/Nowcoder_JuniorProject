@@ -42,10 +42,12 @@ https://blog.csdn.net/zhyh1435589631/article/details/51787577
         4.对页面优化，用next，登录后返回登录前的页面；
         5.其他的就是登录，注册，访问的基本要求就不写了，都在代码中，看record_class04中笔记。
 
-7.profile的AJAX实现；
+7.profile的AJAX实现以及index的AJAX实现；
     AJAX就是一个业务上的需求，了解即可；见views.py中的user_images函数以及profile.html中的部分代码。
     AJAX的开发流程：前端设定一个更多按钮，等待后端发送过接口；后端发送一个map，里面存储hax_next，image等变量，每次都是
 利用分页提取的方式存入map中，然后将map传给前端，前端拿来显示即可。
+    前端代码不多说，AJAX的后台开发主要是实现分页浏览，用分页paginate查询函数然后获取信息最终返回json串的方法给前端显示
+即可。
 
 8.图片上传；
     详细内容见record_class05_<1> 里面清除写了各部分原理。

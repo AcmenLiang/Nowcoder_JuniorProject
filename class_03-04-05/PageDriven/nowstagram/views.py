@@ -19,12 +19,50 @@ from qiniusdk import qiniu_upload_file  #七牛
 # python的装饰器，传入一个/就可以直接下面的函数，注意URL不是localhost/index，index只是个函数；这里就是127.0.0.1:5001/
 @app.route('/')
 def index():
-    images = Image.query.order_by('id desc').limit(10).all()
+    # images = Image.query.order_by('id desc').limit(10).all()
     # 查询Image类(表)中的图，查出10张来，按图片id的降序排列取出给images变量；
     # images用于在render_template中传入参数，这就是jinja2模板语言了，传入的参数在html文件中继续应用，用于显示；
-    return render_template('index.html', images=images)
+    # return render_template('index.html', images=images)
     # render_template是jinja2模板的用法(在class_02讲过)，即MVC的开发模式，调用HTML写好的页面做显示；直接显示.html中页面
     # 的样子，其中里面还加入了CSS的渲染等，这个就是前端做的任务了；
+
+    # 将首页数据初始化为每页5张图，下面使用AJAX异步刷新的方式
+    images = Image.query.order_by('id desc').paginate(1, 5, False)
+    return render_template('index.html', images=images.items)
+
+
+# 实现AJAX的关键函数，首页实现AJAX需要这个图片查询函数做辅助。
+@app.route('/images/<int:page_num>/<int:per_page>/')
+def index_paginate(page_num, per_page):
+    # 1.获取待查询的图片序列，每页获取5张；点一次更多就是1页；
+    images = Image.query.order_by('id desc').paginate(page=page_num, per_page=per_page, error_out=False)
+    # 2.设立标志位，即是否还有下张图
+    map = {'has_next' : images.has_next}
+    image = []
+    # 3.将每张图所需的下面的几个信息存入image变量中
+    for item in images.items:
+        comment_user_username = []
+        comment_user_id = []
+        comment_content = []
+        for comments_i in item.comments:
+            comment_user_username.append(comments_i.users.username)
+            comment_user_id.append(comments_i.users.id)
+            comment_content.append(comments_i.content)
+
+        imgov = {'image_user_id': item.users.id,
+                 'image_user_head_url': item.users.head_url,
+                 'image_user_username': item.users.username,
+                 'image_id':item.id,
+                 'image_url':item.url,
+                 'image_comments_length':len(item.comments),
+                 'comment_user_username': comment_user_username,
+                 'comment_user_id':comment_user_id,
+                 'comment_content':comment_content}
+
+        image.append(imgov)
+    # 4.将image存入map中，返回map的json串；用于前端显示每页的5张图；
+    map['images'] = image
+    return json.dumps(map)
 
 
 # 图片详情页的开发；URL为127.0.0.1:5001/image/图片id ；<int:image_id> 对route传入参数，相当于传入形参，以前讲过；
@@ -59,7 +97,7 @@ def profile(user_id):
 # 则返回如下样式字符串：{"has_next": true, "images": [{"url": "http://images.nowcoder.com/head/99m.png", "comment_count": 3, "id": 494}, {"url": "http://images.nowcoder.com/head/840m.png", "comment_count": 3, "id": 495}, {"url": "http://images.nowcoder.com/head/61m.png", "comment_count": 3, "id": 496}]}
 # 剩下的就将该接口返回给前端显示即可。
 @app.route('/profile/images/<int:user_id>/<int:page>/<int:per_page>/')
-def user_images(user_id, page, per_page):
+def profile_paginate(user_id, page, per_page):
     # 1.查询用户的数据
     paginate = Image.query.filter_by(user_id=user_id).paginate(page=page, per_page=per_page, error_out=False)
     # 2.将查询到的数据进行返回，不断获取新的翻页数据后，总有读完的时候，即没法点击更多了，前端是需要后端通知的。

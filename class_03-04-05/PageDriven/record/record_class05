@@ -72,7 +72,13 @@ https://developer.qiniu.com/kodo/sdk/1242/python#upload
 部分。因为model.py中的Comment类的构造函数需要content,image_id,user_id。构造一条comment实例才可以add到数据库中，然后前端
 读取数据库中的评论显示。所以这就是思路：request到所需的几部分，构造实例，增加到数据库，最终返回json格式用于前端显示。
     代码很少，看views.py中的add_comment_to_pageDetail()即可。前端代码是加了detail.js才完成的，看看即可，不必深究。
-首页的增加评论就是前端代码改了下，不深究。
+首页的增加评论就是前端代码改了下，不深究。两部分评论的后台代码都是一样的，主要看后台代码。
+
+
+<4>首页实现AJAX异步刷新，添加更多浏览按钮
+    主要是前端的更改，就不多说了。后端添加了index_paginate()函数，获取每页的图片，然后获取每张图的评论id,内容等信息存入
+map中，最终返回json串用于前端显示。
+
 
 
 
