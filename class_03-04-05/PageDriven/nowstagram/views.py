@@ -30,8 +30,9 @@ def index():
     images = Image.query.order_by('id desc').paginate(1, 5, False)
     return render_template('index.html', images=images.items)
 
-
-# 实现AJAX的关键函数，首页实现AJAX需要这个图片查询函数做辅助。
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    实现AJAX的关键函数，首页实现AJAX需要这个图片查询函数做辅助
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 @app.route('/images/<int:page_num>/<int:per_page>/')
 def index_paginate(page_num, per_page):
     # 1.获取待查询的图片序列，每页获取5张；点一次更多就是1页；
@@ -131,6 +132,7 @@ def regloginpage():
     # 对每次返回到注册登录页的flash message进行一个提取，然后传入前端令其显示出来；这里用到了过滤闪现和分类闪现；
     for m in get_flashed_messages(with_categories=False, category_filter=['reglogin']):
         msg = msg + m
+    # 实现next优化，登录/注册成功后返回之前的页面
     return render_template('login.html', msg=msg,
                            next=request.values.get('next'))  # 传入next为了用户体验优化，可以跳回注册前点击的页面，而不是直接返回首页
 
