@@ -67,7 +67,15 @@ https://www.cnblogs.com/lzxwalex/p/6629435.html
     搞懂为什么用post请求；搞懂提交评论时所需构造的实例的属性怎么request来以及请求哪些属性；最后搞懂该给前端返回什么。
 详情代码及注释见record_class05_<3>。
 
-
+11.导航栏优化，新版注册/登录界面
+    导航栏优化使用Flask-Bootstrap，Bootstrap 是 Twitter 开发的一个开源框架，它提供的用户界面组件可用于创建整洁且具有吸引
+力的网页，而且这些网页还能兼容所有现代 Web 浏览器。
+    Bootstrap 是客户端框架，因此不会直接涉及服务器。服务器需要做的只是提供引用了 Bootstrap 层叠样式表（CSS）和 JavaScript
+文件的 HTML 响应， 并且 HTML、CSS 和 JavaScript 代码中实例化所需组件。这些操作最理想的执行场所就是模版。
+    Flask-Bootstrap 可以在程序中集成 Bootstrap。
+    https://blog.csdn.net/sinat_29315627/article/details/72879366   前端，不必太深究。
+    新版注册/登录使用2个表单，用框架flask-wtf。换了个界面，加了一个表单验证，其他的登录返回都一样。其他的登录注册逻辑跟
+之前一模一样，就是多了一步从form中提取数据，原先是request.values。
 
 
 
@@ -75,13 +83,9 @@ https://www.cnblogs.com/lzxwalex/p/6629435.html
 
 
 待增加功能：
-1.首页AJAX分页浏览实现；跟前端关系太大，以后有时间在弄。
 2.注册时需要加上邮件激活；跟前端关系太大，以后有时间在弄。
     https://blog.csdn.net/liuredflash/article/details/79632489
     https://blog.csdn.net/zhyh1435589631/article/details/51585231
 3.爬虫获取图片信息；
     可参考如下：https://blog.csdn.net/zhyh1435589631/article/details/51889510
-4.注册/登录页的优化
-5.boostrap 导航条替换
-6.各种优化
-    看完视频后这些功能再一一添加，再写简历。
+

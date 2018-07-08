@@ -17,7 +17,7 @@ class User(db.Model):
     # primary_key=True表示将id设为主键，即id值是唯一标识；autoincrement=True表示该列的id生成的序号是自己产生，且是自增的；
     # 即id这个键的值不需要初始化了(__init__函数不需要再写id的初始化内容)，加上了autoincrement后就会从1开始自增，直至不
     # 在session.add数据为止；
-
+    email = db.Column(db.String(80), unique=True)  # 注册时所需邮箱
     username = db.Column(db.String(80), unique=True)  # unique=True指这个字段在这列里不能重复
     password = db.Column(db.String(80))  # Column代表数据库中的一列，即关键字
     salt = db.Column(db.String(32))  # 注册用的，加强密码的安全性，即防止破解密码的一个外键
@@ -42,8 +42,9 @@ class User(db.Model):
     # ForeignKey仅仅是取其他表中键的值，而并非关联起来，是表1的id用了表2的id，则用ForeignKey拷过来；若是关联，则用relationship
 
     # __init__相当于构造函数，声明一个实例的时候会通过这里进行属性的初始化；self即相当于this指针
-    def __init__(self, username, password, salt=''):
+    def __init__(self, username, email, password, salt=''):
         self.username = username
+        self.email = email
         self.password = password
         self.salt = salt  # 默认此处为空，主要进行密码的加密，用到了再进行赋值；
         self.head_url = u'/static/pictures/' + unicode(random.randint(0, 100)) + u'.jpg'  # 随机生成头像的一种方式

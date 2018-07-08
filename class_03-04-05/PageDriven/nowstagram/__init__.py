@@ -7,14 +7,21 @@ from flask_login import LoginManager  # 登录模块
 import pymysql  # 用于python链接mysql
 pymysql.install_as_MySQLdb()
 
+from flask_bootstrap import Bootstrap
 
 app = Flask(__name__)
 app.jinja_env.add_extension('jinja2.ext.loopcontrols')  # break在jinja2模板中是没有的，要添加一个环境变量，自己百度
 app.config.from_pyfile('app.conf')  # 初始化一下，初始化的信息是从这个文件中来的，就是一些配置信息等等
 app.secret_key = 'nowcoder'  # 加一个验证，用于flash message功能
-db = SQLAlchemy(app)  # 声明SQLAlchemy的一个实例，用于简历OMR映射操作数据库
+db = SQLAlchemy(app)  # 声明SQLAlchemy的一个实例，用于建立OMR映射操作数据库
+
 login_manager = LoginManager(app)  # 使用Flask-Login应用最重要的部分是LoginManager类。你应该为你的应用程序创建一个这个类的实例
-login_manager.login_view = '/regloginpage/'  # 指未登录时，访问需要登录的页面，会跳转过去的登录页面。()内参数即跳转页面。
+# login_manager.login_view = '/regloginpage/'  # 指未登录时，访问需要登录的页面，会跳转过去的登录页面。()内参数即跳转页面。
+login_manager.login_view = '/wtf/login/'  # 新版登录所需跳转的页面
+
+bootstrap = Bootstrap(app)  # 导航栏优化所使用的Bootstrap实例
+# Bootstrap 是 Twitter 开发的一个开源框架，它提供的用户界面组件可用于创建整洁且具有吸引力的网页，而且这些网页还能兼容所有现代 Web 浏览器。
+
 from nowstagram import views, models  # 这样工程就打包完了，只要调用__init__就可以找到各个.py文件中的模块
 
 

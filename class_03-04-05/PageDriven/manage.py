@@ -21,13 +21,13 @@ def init_database():
     db.create_all()
     # 100个用户，每个用户3张图片，每张图片3条评论
     for user_i_id in range(0, 30):
-        db.session.add(User(u'牛客' + str(user_i_id + 1), 'password' + str(random.randint(0, 1000)))) # id从1开始
+        db.session.add(User(u'匿名用户' + str(user_i_id + 1), 'admin' + unicode(user_i_id) + '@qq.com', 'password' + str(random.randint(0, 1000)))) # id从1开始
         for image_j_id in range(0, 7):
             # 看Image类中的构造函数__init__的参数是几个，这里就传入几个，相当于类的实例化(或者说是表中一条数据的建立)
             # 第2个参数就是用的user_id，故从上面的遍历中直接传下来
             db.session.add(Image(get_image_url(), user_i_id + 1))
             for comment_k_id in range(0, 3):
-                db.session.add(Comment(u'这是一条评论：' + str(comment_k_id), 1 + 7 * user_i_id + image_j_id, user_i_id + 1))
+                db.session.add(Comment(u'这是一条评论：你长得真好看' + str(comment_k_id), 1 + 7 * user_i_id + image_j_id, user_i_id + 1))
                 # 后面两个是image_id user_id，需要计算一下才是对应当前评论id的正确值；
     db.session.commit()  # 将数据插入后，需要commit一下，才能将数据真正的提交的数据库中；
     '''

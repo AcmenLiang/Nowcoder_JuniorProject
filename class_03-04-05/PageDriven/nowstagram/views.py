@@ -3,10 +3,9 @@
 
 from nowstagram import app, db  # 从application中导入app，不然找不到该模块；从__init__中导入是不行的！！！必须从子目录中导入！！！
 from models import User, Image, Comment  # 由于view与model文件在泳衣目录，故直接这么导入即可，将这3个类导入；
-from flask import render_template, redirect, request, flash, get_flashed_messages, send_from_directory
+from flask import render_template, redirect, request, flash, get_flashed_messages, send_from_directory, url_for
 # render_templatejinja2中的模板；redirect重定向；request用于get post中的请求；get_flashed_messages用于消息闪现;
 # send_from_directory是flask中直接显示某个本地文件中图片用的库函数；
-
 from flask_login import login_user, logout_user, login_required, current_user  # 这4部分即登陆登出所需的函数
 import hashlib  # md5加密用
 import random  # 产生随机数
@@ -16,6 +15,13 @@ import json
 from qiniusdk import qiniu_upload_file  #七牛
 
 
+from nowstagram.reglogin.forms import LoginForm, RegisterForm
+
+
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            三大详情页开发以及AJAX异步刷新
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 # python的装饰器，传入一个/就可以直接下面的函数，注意URL不是localhost/index，index只是个函数；这里就是127.0.0.1:5001/
 @app.route('/')
 def index():
@@ -30,9 +36,8 @@ def index():
     images = Image.query.order_by('id desc').paginate(1, 5, False)
     return render_template('index.html', images=images.items)
 
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    实现AJAX的关键函数，首页实现AJAX需要这个图片查询函数做辅助
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+# 实现AJAX的关键函数，首页实现AJAX需要这个图片查询函数做辅助
 @app.route('/images/<int:page_num>/<int:per_page>/')
 def index_paginate(page_num, per_page):
     # 1.获取待查询的图片序列，每页获取5张；点一次更多就是1页；
@@ -114,8 +119,9 @@ def profile_paginate(user_id, page, per_page):
     return json.dumps(map)
 
 
+
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-                    注册登录相关
+                    旧版注册登录相关
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 # flash message用的比较多，独立成一个函数；category为分类闪现的应用，具体可看下面资料：
 # http://docs.jinkan.org/docs/flask/patterns/flashing.html
@@ -149,7 +155,7 @@ def reg():
     username = request.values.get('username').strip()  # 获取username参数，用values来获取；strip是去除带来的一些空格等
     password = request.values.get('password').strip()  # 这两句为注册后获取的用户提交的用户名/密码的注册信息
 
-    # 2.业务逻辑处理，看是否出测过该username，username/password是否存在等等异常判断
+    # 2.业务逻辑处理，看是否注册过该username，username/password是否存在等等异常判断
     user = User.query.filter_by(username=username).first()  # 对获取到的username进行过滤寻找，看是否存在重名的username
     if user != None:
         return redirect_with_msg('/regloginpage', u'用户名已经存在', 'reglogin')
@@ -213,7 +219,72 @@ def login():
 @app.route('/logout/')
 def logout():
     logout_user()  # flask-login库中的函数，删除token，session等
-    return redirect('/')  # 当登出之后自动重定向到首页
+    # return redirect('/')  # 当登出之后自动重定向到首页
+    return redirect('/wtf/login/')  # 新版的登出，即最终返回登录页，而不是首页
+
+
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+                    新版注册登录相关
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+# 新版登录
+@app.route('/wtf/login/', methods=['GET', 'POST'])
+def wtf_login():
+    # 1.获取登录表单，在登录表单中获取到了username,password，相当于旧版中的request.values
+    form = LoginForm()
+    # 2.将得到的用户名进行一系列判断
+    if form.validate_on_submit():
+        user = User.query.filter_by(username = form.username.data).first()
+        # 3.业务逻辑判断用户名是否存在
+        if user is not None:
+            m = hashlib.md5()
+            m.update(form.password.data + user.salt)
+            password = m.hexdigest()
+            # 4.业务逻辑判断密码----这里用到了将提取到的密码进行md5加密然后与数据库中的密码进行比对的方法
+            if password != user.password:
+                return redirect_with_msg('/wtf/login/', u'密码不正确', 'login')
+            # 最终则登录用户
+            login_user(user)
+            # 5.用户体验优化，即注册/登录完后可以跳回注册前点击的页面，而不是直接返回首页；这里用一个next变量即可实现
+            next = request.args.get('next')
+            if next != None:
+                return redirect(request.args.get('next'))
+            return redirect('/profile/' + unicode(user.id))
+            flash('用户不存在.')
+    return render_template('reglogin/reglogin_login.html', form = form)
+
+
+# 新版注册
+@app.route('/wtf/register/', methods=['GET', 'POST'])
+def wtf_register():
+    # 1.获取注册表单，从注册表单中将填入的数据得到存入form变量中，即username，password，email；相当于旧版注册中的request.values
+    form = RegisterForm()
+    # 2.业务逻辑处理，看是否出测过该username，username/password是否存在等等异常判断；这一个功能在forms.py中做的；
+    if form.validate_on_submit():
+        # 3.密码进行salt加密，即对md5的加密方式进行提高加密等级，增加一个字符串再进行MD5加密；
+        salt = '.'.join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890', 10))
+        password = form.password.data
+        m = hashlib.md5()
+        m.update(password + salt)
+        password = m.hexdigest()
+        # 4.将新数据提交给数据库，最后要commit一下
+        user = User(form.username.data, form.email.data, password, salt)
+        db.session.add(user)
+        db.session.commit()
+
+        # token = user.generate_confirmation_token()
+        # send_email(form.email.data, u'Please activate your account', u'mail/new_user', user=user, token = token)
+        # 5.注册好了之后自动登录
+        login_user(user)
+        # 6.用户体验优化，即注册/登录完后可以跳回注册前点击的页面，而不是直接返回首页；这里用一个next变量即可实现
+        next = request.args.get('next')
+        if next != None:
+            return redirect(request.args.get('next'))
+        # 7.最终将返回首页，重定向回首页
+        return redirect('/profile/' + unicode(user.id))
+    # 若form不在表单中，直接走模板会注册页
+    return render_template('reglogin/reglogin_register.html', form = form)
+
 
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -281,6 +352,8 @@ def upload():
     # 5.如果上面某几步失败或者全部执行完后，将跳转回当前上传图片的用户的个人详情页去
     # return redirect('/profile/%d/' % current_user.id)
     return redirect_with_msg('/profile/%d/' % current_user.id, '图片上传成功')  # 打一个flash消息
+
+
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
                 图片详情页/首页增加评论
