@@ -7,6 +7,7 @@ from flask import render_template, redirect, request, flash, get_flashed_message
 # render_templatejinja2中的模板；redirect重定向；request用于get post中的请求；get_flashed_messages用于消息闪现;
 # send_from_directory是flask中直接显示某个本地文件中图片用的库函数；
 from flask_login import login_user, logout_user, login_required, current_user  # 这4部分即登陆登出所需的函数
+from nowstagram.email import send_email
 import hashlib  # md5加密用
 import random  # 产生随机数
 import uuid  # 产生唯一识别码，用于给文件名更名
@@ -271,20 +272,32 @@ def wtf_register():
         user = User(form.username.data, form.email.data, password, salt)
         db.session.add(user)
         db.session.commit()
-
-        # token = user.generate_confirmation_token()
-        # send_email(form.email.data, u'Please activate your account', u'mail/new_user', user=user, token = token)
-        # 5.注册好了之后自动登录
+        # 5.获取token，用于加密邮件认证链接防止被人破解；加入数据库后给用户发送邮件点击完成注册；
+        token = user.generate_confirmation_token()
+        send_email(form.email.data, u'Please activate your account', u'mail/new_user', user=user, token = token)
+        # 6.注册好了之后自动登录
         login_user(user)
-        # 6.用户体验优化，即注册/登录完后可以跳回注册前点击的页面，而不是直接返回首页；这里用一个next变量即可实现
+        # 7.用户体验优化，即注册/登录完后可以跳回注册前点击的页面，而不是直接返回首页；这里用一个next变量即可实现
         next = request.args.get('next')
         if next != None:
             return redirect(request.args.get('next'))
-        # 7.最终将返回首页，重定向回首页
+        # 8.最终将返回首页，重定向回首页
         return redirect('/profile/' + unicode(user.id))
     # 若form不在表单中，直接走模板会注册页
     return render_template('reglogin/reglogin_register.html', form = form)
 
+
+# 在点击了邮件的认证链接后，通过url_for重定向回该函数的route参数，然后对点击的token进行confirm认证，看是否是该id的token；
+@app.route('/confirm/<token>')
+@login_required
+def confirm(token):
+    if current_user.email_actived:
+        return redirect('/')
+    if current_user.confirm(token):  # 调用User类中的confirm函数，进行confirm认证是否是该id
+        flash('your account has been activated')
+    else:
+        flash('your account has not been activated, something error')
+    return redirect('/')
 
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''

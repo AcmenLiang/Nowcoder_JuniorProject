@@ -1,0 +1,5 @@
+亲爱的 {{user.username}},
+    为了验证你的身份，请点击如下链接完成注册:
+    {{url_for('confirm', token=token, _external=True)}}
+真诚的祝您生活顺利,
+Instagram web开发团队！

@@ -3,12 +3,12 @@
 文件功能：对应数据库中的各个表的类写在该文件中；比如User类就是数据库中的users表；所有类的基类叫做db.Model，
 它存储在您必须创建的 SQLAlchemy 实例上。
 '''
-
 from nowstagram import db, login_manager
 from flask_login import UserMixin
 from datetime import datetime
 import random
-
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer  # 生成token密钥函数
+from flask import current_app  # 全局变量current_app
 
 # 对应数据库中的users表
 class User(db.Model):
@@ -22,6 +22,7 @@ class User(db.Model):
     password = db.Column(db.String(80))  # Column代表数据库中的一列，即关键字
     salt = db.Column(db.String(32))  # 注册用的，加强密码的安全性，即防止破解密码的一个外键
     head_url = db.Column(db.String(256))
+    email_actived = db.Column(db.BOOLEAN, default=False)  # 邮件是否激活标志
     images = db.relationship('Image', backref='users', lazy='dynamic')
     # 含义解释：将两个表(User与Image)关联起来了，表示User中的image是从Image类来的；
     '''
@@ -53,6 +54,25 @@ class User(db.Model):
     # 则就是打印出的[User 3 牛客3]， __repr__就是用于查询User.query()函数要查询的东西的内容及格式。
     def __repr__(self):
         return '[User %d %s]' % (self.id, self.username)
+
+    # 生成密钥，用于加密邮件认证链接防止被人破解；返回密钥token
+    def generate_confirmation_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'confirm':self.id})
+
+    # 被views.py的confirm函数调用认证，认证该链接是否为该id的内容；
+    def confirm(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)  # loads则表示解析这个令牌，等于反向解码
+        except:
+            return False
+        if data.get('confirm') != self.id:  # 看是否是该id
+            return False
+        self.email_actived = True
+        db.session.add(self)
+        db.session.commit()
+        return True
 
     # User类需要实现这些特性和方法：在current_user字段中就会用到下面的几个方法，在base,html中有应用；
     # 这个特性应该返回True，如果用户已经被认证，也就是说他们已经提供有效的证明。（只有认证的用户将完成login_required标准）

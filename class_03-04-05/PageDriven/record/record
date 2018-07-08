@@ -77,15 +77,18 @@ https://www.cnblogs.com/lzxwalex/p/6629435.html
     新版注册/登录使用2个表单，用框架flask-wtf。换了个界面，加了一个表单验证，其他的登录返回都一样。其他的登录注册逻辑跟
 之前一模一样，就是多了一步从form中提取数据，原先是request.values。
 
-
+12.注册通知邮件
+    技术点较多，主要使用flask-mail，flask-url_for，flask-current_app这3个模块对功能进行组合。
+    该部分总结：
+    用flask-mail发送邮件，邮件内容用到了flask-url_for对url重定向，其中重定向是为了认证链接的跳转，因为需要进行confirm认证
+是否是该id的链接，这就扯到了token密钥的产生，是通过current_app以及Serializer函数的使用，至此，完毕。
+    附该部分内容某blog的实现，讲的和我几乎一样：
+https://blog.csdn.net/bestallen/article/details/52295171
 
 
 
 
 待增加功能：
-2.注册时需要加上邮件激活；跟前端关系太大，以后有时间在弄。
-    https://blog.csdn.net/liuredflash/article/details/79632489
-    https://blog.csdn.net/zhyh1435589631/article/details/51585231
 3.爬虫获取图片信息；
     可参考如下：https://blog.csdn.net/zhyh1435589631/article/details/51889510
 

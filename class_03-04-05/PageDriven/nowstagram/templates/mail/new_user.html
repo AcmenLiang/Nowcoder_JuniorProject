@@ -1,0 +1,8 @@
+<!--邮件正文内容-->
+亲爱的 {{user.username}},<br>
+    为了验证你的身份，请点击如下链接完成注册:<br>
+    <a href="{{url_for('confirm', token=token, _external=True)}}">
+        {{url_for('confirm', token=token, _external=True)}}
+    </a><br>
+真诚的祝您生活顺利,<br>
+Instagram web开发团队！<br>
