@@ -6,10 +6,10 @@ from nowstagram.models import User, Image, Comment
 from flask_script import Manager
 from sqlalchemy import or_, and_
 import random
-
-manager = Manager(app)  # 声明脚本Manager的实例manager
-
-
+import unittest
+# 声明脚本Manager的实例manager
+manager = Manager(app)
+# 得到image图片的url地址
 def get_image_url():
     return u'/static/pictures/' + unicode(random.randint(0, 100)) + u'.jpg'
 
@@ -84,6 +84,24 @@ print 'test11', image, image.user_id  # 这里是用的Image类中的变量，�
 # 这里要在User类中将User类与Image类关联的时候(relationship语句中)，加上backref='users'，表示反关联，即双向关联，这样也就能
 # 根据图片的id查询到人的id了；上面两个print语句就是表示了双向关联可以互相查询的意思；
 '''
+
+
+# 在脚本文件manager.py中写run测试函数的入口，可以在命令行中直接执行运行测试函数；
+@manager.command
+def run_test():
+    # 0.跑之前清空/创建一下数据库
+    db.drop_all()
+    db.create_all()
+    # 1.discover指去找xx(这里为./)目录下以test开头的测试文件名，他的入口参数是test*.py，则此处的tests.py就被加载到这里的变量tests中
+    tests = unittest.TestLoader.discover('./')
+    # 2.跑测试用例tests
+    unittest.TextTestRunner().run(tests)
+    '''
+    运行结果可以看出：首先去加载一个测试用例，他会把测试用例tests中test开头的方法来跑，比如这里的test_1,test_2；然后在跑
+    测试用例之前都会先跑一个setUp函数，再跑测试函数，再跑tearDown函数。
+    '''
+    pass
+
 
 if __name__ == '__main__':
     # 这里只是先run一下，对mysql中的数据进行增删改查，先建立一些假数据，在web页面开发的时候能显示出来；在真正上线的时候，
