@@ -1,6 +1,6 @@
 	至此，项目结束。不再添加新功能，本节讲一下单元测试，部署，总结整体功能，如何介绍项目等问题。
 
-<1>单元测试
+A：单元测试
     写一份单元测试代码，检测代码逻辑对不对。先把单元测试代码写好，而不是根据结果写测试。UT的目标就是发现代码改动后导致原
 有的代码通不过或者新增的代码是否符合要求。
     单元函数放在tests.py中；manager.py是存放运行脚本函数的文件，比如运行数据库的初始化，单元测试的入口运行等等；runserver.py
@@ -12,3 +12,91 @@
 样的数据，防止考虑欠佳；一定要考虑所有点，保证请求是对的；
     4.清理数据：在tearDown中执行；
     代码：在tests.py中书写测试用例类和函数，在manager.py中调用该测试用例(在脚本中执行)。
+
+
+B：部署到服务器
+<1>服务器选择，IP，域名等基本理顺
+    首先，没有云服务器一样可以部署，只需要装一个ubuntu虚拟机，操作一系列步骤即可，步骤我们等会儿再说。这里扯到了云服务器，
+我们就多说两句。无论是不是云服务器，都需要安装那些东西，但是当你关机之后，你的部署就失效了，也就是外网没法访问这个IP了。
+至于云服务器的好处，或许是配置方便修改等。
+    云服务器是买的腾讯云的，10元/月，学生优惠，分配给我了一个外网IP，http://118.24.108.26，我还申请了一个域名，
+pictures-show-亮love萍.xyz，这个就是可以在nginx反向代理中将刚才的IP与域名关联(一会说)就可以通过域名来访问我们的web网站。
+云服务器的购买与域名的购买备案都按操作来即可，就是稍微麻烦点，就不介绍了。
+    我的一切都是在云服务器上运行的，就算我关机了也不怕，云服务器嘛，在云端一直开着，除非你主动关机，如果停费了就不能用了。
+当然可以自己装一个虚拟机继续折腾。
+
+<2>如何把我们的本地127.0.0.1网址部署到我们申请的云服务器http://118.24.108.26上？
+    step1.首先在服务器上安装一系列的软件，比如nginx，mysql-server，gunicorn等；
+    apt-get install nginx mysql-server gunicorn python-flask libmysqlclient-dev python-dev
+下面必须要了解的几个部分：
+a.nginx
+    Nginx是一个高性能的 HTTP 和 反向代理服务器，在高并发方面表现非常不错。
+    什么是Nginx？https://blog.csdn.net/kisscatforever/article/details/73129270
+    反向代理是相对服务器来说，是服务器向其他IP寻求数据，正向代理是相对浏览器客户端来说。可以有多台机器分别进行反向代理，
+同一个域名指向多个反向代理服务器，某一个不好用了可以杀死，但是访问域名却不影响。代理就是我没有数据，你找我要我找别人要，
+正向反向就是一个队客户端来说一个对服务器来说。
+    nginx 的作用就是弥补以上问题，首先作为前端服务器它可以处理一切静态文件请求，此时 gunicorn 作为后端服务器，nginx 将会
+把动态请求转发给后端服务器，因此我们可以起多个 gunicorn 进程，然后让 nginx 作均衡负载转发请求给多个 gunicorn 进程从而提
+升服务器处理效率与处理能力。最后，nginx 还可以配置很多安全相关、认证相关等很多处理，可以让你的网站更专注业务的编写，把一
+些转发规则等其它业务无关的事情交给 nginx 做。
+b.gunicorn
+    Gunicorn 是一个Python WSGI UNIX的HTTP服务器，从Ruby的独角兽（Unicorn ）项目移植，能与很多Web框架兼容，只需非常简单的
+执行，轻量级的资源消耗，以及相当迅速。
+    前端使用nginx做反向代理和动静分离（把css、js、image、html等静态文件直接通过nginx转发，不通过后端处理），后端使用
+gunicorn+flask的方式。
+    gunicorn 可以单独提供服务，但生产环境一般不这样做。首先静态资源（jscssimg）会占用不少的请求资源，而对于 gunicorn 来
+讲它本身更应该关注实际业务的请求与处理而不应该把资源浪费在静态资源请求上；此外，单独运行 gunicorn 是没有办法起多个进程多
+个端口来负载均衡的。
+    Gunicorn对静态文件的支持不太好，所以生产环境下常用Nginx作为反向代理服务器。
+c.mysql-server
+    本次部署在这里摔的最惨，主要是在ubuntu服务器中没有对mysql连接上。
+    (1)服务器中mysql的用户名和密码默认并不是root:admin，所以我程序中app.conf的配置信息就是不对的；我需要在ubuntu中对mysql
+的用户名密码重置。
+    (2)改好后，我运行python manage.py init_database 还是报错；用暴力，navicat链接ubuntu中数据库并没有我们的nowcoder；好
+吧，把本地的拷过来(mysql workbench导出)在navicat中导入，即导入到118.24.108.26服务器里，我们看看能不能run起来对吧。
+    (3)好气啊，还是报500的错误，在程序中打印hello也没执行，还是数据库没链接。后来瞎碰，在app.conf文件中将链接的IP地址将
+127.0.0.1:3306改为118.24.108.26:3306服务器的IP竟然可以了，也就是说服务器中不允许访问本地的数据库，只能访问他本机IP中的
+数据库。ubuntu不能访问Windows下的数据库IP，只能访问他自己IP下的数据库，目前原因未知。其实这个也不影响，能在服务器上使用
+数据库，Windows下也能访问该数据库就行了，而且数据库都是可以导出的，只不过数据都是放在服务器上了，影响目前来看并没有，只需
+要在app.conf中记住是填写服务器的IP即可。
+    报500错误，多半是数据库没连接好，没请求到数据，数据库初始化失败导致的。
+    (4)navicat就是一个可以远程登录数据库的软件，可以在Windows下登录ubuntu下的数据库，只要正确输入IP地址，用户名与密码即
+可；还可以导入导出SQL数据库等；也可以写SQL语句操作数据，基本workbench的操作都可以做。以后开服务器就可以在Windows下远程
+链接上服务器端数据库监视，而不必在Linux下再费事了。(4)就是为了解决(3)中存在的问题，我们不能时时刻刻用命令行操作Linux下的
+数据库，所以在Windows下远程登录Linux下的数据库就可以了。
+    step2.安装一系列依赖包，这个很简单，不多说，把需要的都装上即可：
+pip install Flask-Script Flask-SQLAlchemy Flask-Login qiniu Flask-MySQLdb
+    step3.对nginx进行配置，在目录/etc/nginx/sites-enabled/default 文件中：
+server
+{
+    listen 80;
+    server_name c1.nowcoder.com;
+    location / {proxy_pass http://127.0.0.1:8000;}
+}
+    表明监听80端口，c1.nowcoder.com为我们的域名，将反向映射到本地地址127.0.0.1:8000，其实我们服务器的公网IP118.24.108.26
+也是反向映射到本地地址127.0.0.1:8000，只不过在nginx中加上server_name字段即增加域名这样就不用记住IP了。
+    下面的location是gunicorn的默认监听地址，不用改，即反向代理的IP。gunicorn是一个默认作为一个监听127.0.0.1:8000的web server。
+    step4.启动服务器：
+    gunicorn –D –w 3 –b 127.0.0.1:8000 nowstagram:app
+说明一下：
+- D 表示后台运行
+- w 表示有3个工作线程（感觉有些类似 nginx 的 master-worker 模型）
+- b 指定ip 和端口
+- 这里采用本机访问， 主要是为了使用nginx进行代理，方便管理
+- nowstagram 表存放写着全局变量app的那个工程文件夹，在我们的这个工程中，即包含init.py的那个文件
+- app为全局变量（app = Flask(__name__)）
+
+<3>部署之后目前还存在的小bug：
+    1.邮件激活链接还带着127.0.0.1导致无法访问。暂时不做了，这样吧。估计是反向代理那有问题。
+    2.buntu不能访问Windows下的数据库IP，只能访问他自己IP下的数据库，目前原因未知。但是不影响使用，直接把数据存在Linux下
+的数据库是一样的。
+
+<4>学习部署所参考的网站：
+    http://codingnow.cn/server/539.html
+    什么是Nginx？https://blog.csdn.net/kisscatforever/article/details/73129270
+    Flask通过Gunicorn部署为什么还要再加上Nginx？http://www.jyguagua.com/?p=3543
+    新手 nginx 和 gunicorn 是什么样的关系？https://segmentfault.com/q/1010000005966993/a-1020000005967066
+    Flask + Gunicorn + Nginx 部署 http://python.jobbole.com/87666/
+    Ubuntu | Flask + Gunicorn + Nginx 部署服务器环境 https://www.jianshu.com/p/837164e9f724
+    Flask部署到腾讯云主机上 https://blog.csdn.net/lw_zhaoritian/article/details/51254798
+    玩转云端(云服务器使用详解) https://blog.csdn.net/u014700919/article/details/50171657

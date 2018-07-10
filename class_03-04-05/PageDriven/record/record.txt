@@ -95,10 +95,12 @@ https://blog.csdn.net/bestallen/article/details/52295171
     4.清理数据：在tearDown中执行；
     代码：在tests.py中书写测试用例类和函数，在manager.py中调用该测试用例(在脚本中执行)。
 
+14.部署到服务器
+    看record_class07中很详细。
 
 
 
 待增加功能：
-3.爬虫获取图片信息；
+爬虫获取图片信息；
     可参考如下：https://blog.csdn.net/zhyh1435589631/article/details/51889510
 

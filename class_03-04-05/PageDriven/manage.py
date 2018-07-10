@@ -94,7 +94,7 @@ def run_test():
     db.create_all()
     # 1.discover指去找xx(这里为./)目录下以test开头的测试文件名，他的入口参数是test*.py，则此处的tests.py就被加载到这里的变量tests中
     tests = unittest.TestLoader.discover('./')
-    # 2.跑测试用例tests
+    # 2.跑测试用例tests（跑测试用例就会执行测试四部曲，不过是自动执行的，只需要了解过程即可）
     unittest.TextTestRunner().run(tests)
     '''
     运行结果可以看出：首先去加载一个测试用例，他会把测试用例tests中test开头的方法来跑，比如这里的test_1,test_2；然后在跑
